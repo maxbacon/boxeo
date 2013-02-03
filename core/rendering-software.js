@@ -26,6 +26,14 @@ var boxeo$rendering$software = function(id) {
    this.clear = function() {
       _ctx.clearRect(0, 0, _w, _h);
    };
+   this.shade = function(shaderName) {
+      if (shaderName == 'black') {
+         _ctx.strokeStyle = '#000000';
+      }
+      if (shaderName == 'red') {
+         _ctx.strokeStyle = '#ff0000';
+      }
+   };
    this.rect = function(x, y, w, h) {
       _ctx.beginPath();
       var hw = Math.round(w / 2);
