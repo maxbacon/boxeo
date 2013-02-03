@@ -1,0 +1,164 @@
+<html>
+<head>
+<title>Multi-Select with Boxeo</title>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script type="text/javascript" src="../boxeo.js"></script>
+<style>
+.rubberband {
+	pointer-events: none;
+	position: absolute;
+	border: #c00 1px dashed;
+	position: absolute;
+}
+</style>
+<script type="text/javascript">
+   var config = BOXEO.getDefaultConfig();
+   var layer1 = BOXEO.newLayer(config);
+   function run() {
+      BOXEO.setUp('canvas0', layer1, config);
+      layer1.event('pre-draw', function(_, renderer) {
+         renderer.clear();
+      });
+      var selectSingle = function(selectResult, start) {
+         var element = selectResult.item;
+         var stateAtStart = element.state();
+         var shouldRotate = selectResult.x >= stateAtStart.$width - 6 && Math.abs(selectResult.y - stateAtStart.$height / 2) <= 6;
+         var offX = stateAtStart.$origin_x - start.x;
+         var offY = stateAtStart.$origin_y - start.y;
+         if (!shouldRotate) {
+            layer1.event('mouse-move', function(_, end) {
+               element.mutate({
+                  $origin_x : end.x + offX,
+                  $origin_y : end.y + offY
+               });
+            });
+         } else {
+            layer1.event('mouse-move', function(_, end) {
+               element.mutate({
+                  $orientation_u : end.x - stateAtStart.$origin_x,
+                  $orientation_v : end.y - stateAtStart.$origin_y
+               });
+            });
+         }
+         layer1.event('mouse-up', function(_, end) {
+            layer1.event('mouse-move', null);
+            layer1.event('mouse-up', null);
+         });
+      }
+
+      var _selection = null;
+      var beginMultiSelect = function(rubberBandId, start) {
+         layer1.beginRubberBand(rubberBandId, start);
+         layer1.event('mouse-move', function(_, end) {
+            layer1.selectByRect(layer1.updateRubberBand(end));
+         });
+         layer1.event('mouse-up', function(_, end) {
+            var rect = layer1.hideRubberBand(end);
+            var s = layer1.selectByRect(rect);
+            if (s != null) {
+               _selection = BOXEO.newLayer(config);
+               _selection.addAll(s);
+            }
+            layer1.event('mouse-move', null);
+            layer1.event('mouse-up', null);
+         });
+      }
+
+      var continueSelection = function(start) {
+         var offsets = _selection.map(function(element) {
+            var stateAtStart = element.state();
+            var offX = stateAtStart.$origin_x - start.x;
+            var offY = stateAtStart.$origin_y - start.y;
+            return [ offX, offY ];
+         });
+         layer1.event('mouse-move', function(_, end) {
+            _selection.iterate(function(element, idx) {
+               element.mutate({
+                  $origin_x : end.x + offsets[idx][0],
+                  $origin_y : end.y + offsets[idx][1]
+               });
+            });
+         });
+         layer1.event('mouse-up', function(_, end) {
+            layer1.event('mouse-move', null);
+            layer1.event('mouse-up', null);
+         });
+      };
+
+      layer1.event('mouse-down', function(_, start) {
+         if (_selection != null) {
+            var resumeResult = _selection.selectByPoint(start.x, start.y, true);
+            if (resumeResult != null) {
+               return continueSelection(start);
+            } else {
+               _selection = null;
+            }
+         }
+         var selectResult = layer1.selectByPoint(start.x, start.y);
+         if (selectResult != null) {
+            return selectSingle(selectResult, start);
+         } else {
+            layer1.event('mouse-up', null);
+            layer1.event('mouse-move', null);
+            beginMultiSelect("rubberBand", start);
+         }
+      })
+   }
+
+   function addObject(url, x, y) {
+      var b = BOXEO.newObject(config).mutate({
+         $origin_x : x,
+         $origin_y : y,
+         $url : url
+      });
+      b.event('draw', function(self, renderer) {
+         var state = self.state();
+         var u = state.$orientation_u;
+         var v = state.$orientation_v;
+         var img = BOXEO.image(state.$url, renderer.restart);
+         var b0 = state.$width != img.width;
+         var b1 = state.$height != img.height;
+         if (b0 || b1) {
+            b.mutate({
+               $width : img.width,
+               $height : img.height
+            });
+            return;
+         }
+         renderer.transform(u, v, state.$origin_x, state.$origin_y, function() {
+            renderer.image(img, -state.$width / 2, -state.$height / 2)
+            if (self.selected) {
+               renderer.shade('red');
+            } else {
+               renderer.shade('black');
+            }
+            renderer.rect(0, 0, state.$width, state.$height);
+            var pad = 6;
+            renderer.rect(Math.round(state.$width / 2) - pad, 0, pad, 2 * pad);
+         });
+      });
+      layer1.add(b);
+   }
+   function allowDrop(ev) {
+      ev.preventDefault();
+   }
+
+   function drag(ev) {
+      layer1.packageDrag(ev);
+      ev.dataTransfer.setData("src", ev.target.src);
+   }
+   function drop(ev) {
+      ev.preventDefault();
+      var pos = layer1.computeDrop(ev);
+      addObject(ev.dataTransfer.getData("src"), pos.x, pos.y);
+   }
+</script>
+</head>
+
+<body onload="run();">
+	<canvas id="canvas0" width="800" height="600" style="border: 1px solid #000; float: right" ondrop="drop(event)" ondragover="allowDrop(event)"></canvas>
+	<img src="assets/cloud5.png" draggable="true" ondragstart="drag(event)">
+	<img src="assets/main-title.png" draggable="true" ondragstart="drag(event)">
+	<div id="rubberBand" class="rubberband" style="display: none">&nbsp;</div>
+</body>
+</html>
