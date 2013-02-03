@@ -126,4 +126,7 @@ var BoxeoLayer = function(config) {
       });
       _fire('post-draw', ctx);
    });
+   this.computeDrop = function(e) {
+      return __MOUSE(e);
+   } 
 };
