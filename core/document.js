@@ -126,7 +126,16 @@ var BoxeoLayer = function(config) {
       });
       _fire('post-draw', ctx);
    });
+   this.packageDrag = function(e) {
+      var p = __MOUSE(e);
+      var et = e.currentTarget;
+      e.dataTransfer.setData("offX", et.width/2 - p.x);
+      e.dataTransfer.setData("offY", et.height/2 - p.y);
+   };
    this.computeDrop = function(e) {
-      return __MOUSE(e);
-   } 
+      var m = __MOUSE(e);
+      m.x += parseInt(e.dataTransfer.getData("offX"));
+      m.y += parseInt(e.dataTransfer.getData("offY"));
+      return m;
+   };
 };

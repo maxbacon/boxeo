@@ -88,6 +88,7 @@
    }
 
    function drag(ev) {
+      layer1.packageDrag(ev);
       ev.dataTransfer.setData("src", ev.target.src);
    }
 
