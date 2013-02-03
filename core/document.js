@@ -37,6 +37,7 @@ var Boxeo = function(config) {
       return [ a, b ];
    };
 
+   var _shown = false; 
    this.touches = function(_x, _y, _w, _h) {
       var u = _state.$orientation_u;
       var v = _state.$orientation_v;
@@ -56,7 +57,7 @@ var Boxeo = function(config) {
       pntsA[6] = _state.$origin_x - duX + dvX;
       pntsA[7] = _state.$origin_y - duY + dvY;
       var pntsB = [ _x, _y, _x + _w, _y, _x + _w, _y + _h, _x, _y + _h ];
-      var axis = [ u, -v, v, u, 0, 1, 1, 0 ];
+      var axis = [ u, v, -v, u, 0, 1, 1, 0 ];
       for ( var k = 0; k < 8; k += 2) {
          var projA = _project(pntsA, axis, k);
          var projB = _project(pntsB, axis, k);

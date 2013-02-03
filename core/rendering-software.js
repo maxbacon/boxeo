@@ -53,7 +53,7 @@ var boxeo$rendering$software = function(id) {
       _ctx.lineTo(x + w, y);
       _ctx.lineTo(x, y);
       _ctx.stroke();
-   };   
+   };
    this.transform = function(u, v, x, y, cb) {
       _ctx.save();
       try {
@@ -72,5 +72,10 @@ var boxeo$rendering$software = function(id) {
    };
    this.snapshot = function() {
       return _ctx.toDataURL("image/png");
-   }
+   };
+   this.point = function(x, y, r) {
+      _ctx.beginPath();
+      _ctx.arc(x, y, r, 0, 2 * Math.PI, false);
+      _ctx.stroke();
+   };
 }
