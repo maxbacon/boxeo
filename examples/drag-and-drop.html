@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Simple Scene Editing with Boxeo</title>
+<title>Drag and Drop with Boxeo</title>
 <script type="text/javascript"
 	src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 <script type="text/javascript" src="../boxeo.js"></script>
@@ -52,7 +52,7 @@
 
       })
    }
-   function addObject(url,x,y) {
+   function addObject(url, x, y) {
       var b = BOXEO.newObject(config).mutate({
          $origin_x : x,
          $origin_y : y,
@@ -81,8 +81,6 @@
       });
       layer1.add(b);
    }
-</script>
-<script>
    function allowDrop(ev) {
       ev.preventDefault();
    }
@@ -91,7 +89,6 @@
       layer1.packageDrag(ev);
       ev.dataTransfer.setData("src", ev.target.src);
    }
-
    function drop(ev) {
       ev.preventDefault();
       var pos = layer1.computeDrop(ev);
@@ -102,10 +99,9 @@
 
 <body onload="run();">
 	<canvas id="canvas0" width="800" height="600"
-		style="border: 1px solid #000;float:right" ondrop="drop(event)"
+		style="border: 1px solid #000; float: right" ondrop="drop(event)"
 		ondragover="allowDrop(event)"></canvas>
-	<img src="assets/cloud5.png" draggable="true"
-		ondragstart="drag(event)">
+	<img src="assets/cloud5.png" draggable="true" ondragstart="drag(event)">
 	<img src="assets/main-title.png" draggable="true"
 		ondragstart="drag(event)">
 </body>
