@@ -37,6 +37,15 @@ var boxeo$rendering$software = function(id) {
       _ctx.lineTo(x - hw, y - hh);
       _ctx.stroke();
    };
+   this.rect2 = function(x, y, w, h) {
+      _ctx.beginPath();
+      _ctx.moveTo(x, y);
+      _ctx.lineTo(x, y + h);
+      _ctx.lineTo(x + w, y + h);
+      _ctx.lineTo(x + w, y);
+      _ctx.lineTo(x, y);
+      _ctx.stroke();
+   };   
    this.transform = function(u, v, x, y, cb) {
       _ctx.save();
       try {

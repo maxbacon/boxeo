@@ -15,6 +15,8 @@ var boxeo$setup = function(htmlId, boxeoDocument, config) {
       window.setTimeout(function() {
          _sent = false;
          var dim = _renderer.begin(htmlId);
+         var p = __ELEMENT_POSITION(domElementFront);
+         boxeoDocument.updateViewPort(p.x, p.y);
          boxeoDocument.resize(dim.width, dim.height);
          boxeoDocument.fire('draw', _renderer);
       }, waitms);

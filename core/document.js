@@ -71,6 +71,15 @@ var BoxeoLayer = function(config) {
    _state.$width = 1;
    _state.$height = 1;
 
+   _viewport = {
+      x : 0,
+      y : 0
+   };
+   this.updateViewPort = function(x, y) {
+      _viewport.x = x;
+      _viewport.y = y;
+   };
+
    this.add = function(boxeo) {
       _elements[_elements.length] = boxeo;
       boxeo.subscribe(function() {
@@ -129,13 +138,59 @@ var BoxeoLayer = function(config) {
    this.packageDrag = function(e) {
       var p = __MOUSE(e);
       var et = e.currentTarget;
-      e.dataTransfer.setData("offX", et.width/2 - p.x);
-      e.dataTransfer.setData("offY", et.height/2 - p.y);
+      e.dataTransfer.setData("offX", et.width / 2 - p.x);
+      e.dataTransfer.setData("offY", et.height / 2 - p.y);
    };
    this.computeDrop = function(e) {
       var m = __MOUSE(e);
       m.x += parseInt(e.dataTransfer.getData("offX"));
       m.y += parseInt(e.dataTransfer.getData("offY"));
       return m;
+   };
+   var _trackRubberBandStart = {
+      x : 0,
+      y : 0,
+      dom : null,
+   };
+   this.beginRubberBand = function(rubberBandId, m) {
+      var rubberBand = document.getElementById(rubberBandId);
+      _trackRubberBandStart.x = m.x;
+      _trackRubberBandStart.y = m.y;
+      rubberBand.style.position = "absolute";
+      rubberBand.style.display = "";
+      rubberBand.style.left = (m.x + _viewport.x) + "px";
+      rubberBand.style.top = m.y + "px";
+      rubberBand.style.width = "1px";
+      rubberBand.style.height = "1px";
+      _trackRubberBandStart.dom = rubberBand;
+   };
+   this.updateRubberBand = function(m) {
+      var rubberBand = _trackRubberBandStart.dom;
+      var a = Math.min(m.x, _trackRubberBandStart.x);
+      var b = Math.min(m.y, _trackRubberBandStart.y);
+      var c = Math.max(m.x, _trackRubberBandStart.x);
+      var d = Math.max(m.y, _trackRubberBandStart.y);
+      rubberBand.style.left = (a + _viewport.x) + "px";
+      rubberBand.style.top = (b + _viewport.y) + "px";
+      rubberBand.style.width = (c - a) + "px";
+      rubberBand.style.height = (d - b) + "px";
+   };
+   this.hideRubberBand = function(m) {
+      var rubberBand = _trackRubberBandStart.dom;
+      rubberBand.style.display = "none";
+      rubberBand.style.left = "0px";
+      rubberBand.style.top = "0px";
+      rubberBand.style.width = "1px";
+      rubberBand.style.height = "1px";
+      var a = Math.min(m.x, _trackRubberBandStart.x);
+      var b = Math.min(m.y, _trackRubberBandStart.y);
+      var c = Math.max(m.x, _trackRubberBandStart.x);
+      var d = Math.max(m.y, _trackRubberBandStart.y);
+      return {
+         x : a,
+         y : b,
+         w : c - a,
+         h : d - b
+      };
    };
 };
