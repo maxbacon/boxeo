@@ -6,5 +6,6 @@ var boxeo$config = function() {
    CONFIG.PADDING_FOR_SPECIAL_REGIONS = 5;
    CONFIG.BUILD_DATE = "%%BUILD%%";
    CONFIG.RENDERER = '2d';
+   CONFIG.REFRESH_WAIT = 2;
    return CONFIG;
 }

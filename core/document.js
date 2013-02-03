@@ -48,7 +48,8 @@ var Boxeo = function(config) {
          item : this
       };
       if (inside) {
-         result.region_rotate = _a >= Math.round(_state.$width / 2) - 5 && Math.abs(_b) <= 5;
+         result.x = _a + _state.$width / 2.0;
+         result.y = _b + _state.$height / 2.0;
       }
       return result;
    };

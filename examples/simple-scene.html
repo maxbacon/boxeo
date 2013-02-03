@@ -1,0 +1,86 @@
+<html>
+<head>
+<title>Simple Scene Editing with Boxeo</title>
+<script type="text/javascript"
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script type="text/javascript" src="../boxeo.js"></script>
+<script type="text/javascript">
+   var config = BOXEO.getDefaultConfig();
+   var layer1 = BOXEO.newLayer(config);
+   function run() {
+      BOXEO.setUp('canvas0', layer1, config);
+      layer1.event('pre-draw', function(_, renderer) {
+         renderer.clear();
+      });
+      layer1.event('mouse-down', function(_, start) {
+         var selectResult = layer1.selectByPoint(start.x, start.y);
+         if (selectResult != null) {
+            var element = selectResult.item;
+            var stateAtStart = element.state();
+            var shouldRotate = selectResult.x >= stateAtStart.$width - 6 && Math.abs(selectResult.y - stateAtStart.$height / 2) <= 6;
+            var offX = stateAtStart.$origin_x - start.x;
+            var offY = stateAtStart.$origin_y - start.y;
+            if (!shouldRotate) {
+               layer1.event('mouse-move', function(_, end) {
+                  element.mutate({
+                     $origin_x : end.x + offX,
+                     $origin_y : end.y + offY
+                  });
+               });
+            } else {
+               layer1.event('mouse-move', function(_, end) {
+                  element.mutate({
+                     $orientation_u : end.x - stateAtStart.$origin_x,
+                     $orientation_v : end.y - stateAtStart.$origin_y
+                  });
+               });
+            }
+            layer1.event('mouse-up', function(_, end) {
+               layer1.event('mouse-move', null);
+               layer1.event('mouse-up', null);
+            });
+         } else {
+            layer1.event('mouse-up', null);
+            layer1.event('mouse-move', null);
+         }
+      })
+   }
+   function addObject() {
+      var url = 'assets/main-title.png';
+      var b = BOXEO.newObject(config).mutate({
+         $origin_x : 500,
+         $origin_y : 50,
+         $url : url
+      });
+      b.event('draw', function(self, renderer) {
+         var state = self.state();
+         var u = state.$orientation_u;
+         var v = state.$orientation_v;
+         var img = BOXEO.image(state.$url, renderer.restart);
+         var b0 = state.$width != img.width;
+         var b1 = state.$height != img.height;
+         if (b0 || b1) {
+            b.mutate({
+               $width : img.width,
+               $height : img.height
+            });
+            return;
+         }
+         renderer.transform(u, v, state.$origin_x, state.$origin_y, function() {
+            renderer.image(img, -state.$width / 2, -state.$height / 2)
+            renderer.rect(0, 0, state.$width, state.$height);
+            var pad = 6;
+            renderer.rect(Math.round(state.$width / 2) - pad, 0, pad, 2 * pad);
+         });
+      });
+      layer1.add(b);
+   }
+</script>
+</head>
+<body onload="run();">
+	<button onclick="addObject()">Add</button>
+	<hr />
+	<canvas id="canvas0" width="800" height="600"
+		style="border: 1px solid #000"></canvas>
+</body>
+</html>
