@@ -26,6 +26,11 @@ var Boxeo = function(config) {
    _state.$tags = "";
    _state.$url = "";
 
+   this.touches = function(x, y, w, h) {
+      // TODO: real math... fuck, it's late
+      return false;
+   };
+
    this.contains = function(_x, _y) {
       var x = _x - _state.$origin_x;
       var y = _y - _state.$origin_y;
@@ -101,6 +106,7 @@ var BoxeoLayer = function(config) {
       var last = null;
       var _n = _elements.length;
       for ( var _k = 0; _k < _n; _k++) {
+         _elements[_k].selected = false;
          var chk = _elements[_k].contains(x, y);
          if (chk.inside) {
             last = chk;
@@ -112,6 +118,25 @@ var BoxeoLayer = function(config) {
       _notify();
       return last;
    };
+   this.selectByRect = function(rect) {
+      var x = rect.x;
+      var y = rect.y;
+      var w = rect.w;
+      var h = rect.h;
+      var objs = [];
+      var _n = _elements.length;
+      for ( var _k = 0; _k < _n; _k++) {
+         var chk = _elements[_k].touches(x, y, w, h);
+         if (chk) {
+            objs[objs.length] = _elements[_k];
+         }
+         _elements[_k].selected = chk;
+      }
+      if (objs.length > 0) {
+         _notify();
+      }
+      return last;
+   }
    this.iterate = function(foo) {
       var _n = _elements.length;
       for ( var _k = 0; _k < _n; _k++) {
