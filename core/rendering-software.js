@@ -12,10 +12,7 @@ var boxeo$rendering$software = function(id) {
       _ctx = domElement.getContext('2d');
       _w = $(domElement).width();
       _h = $(domElement).height();
-      return {
-         width : _w,
-         height : _h
-      };
+      return { width : _w, height : _h };
    };
    this.setRestart = function(restart) {
       _restart = restart;

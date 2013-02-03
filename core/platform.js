@@ -25,10 +25,7 @@ var __ELEMENT_POSITION = function(domElement) {
          curleft += domElement.offsetLeft;
          curtop += domElement.offsetTop;
       } while (domElement = domElement.offsetParent);
-      return {
-         "x" : curleft,
-         "y" : curtop
-      };
+      return { "x" : curleft, "y" : curtop };
    }
 };
 
@@ -51,10 +48,7 @@ var __MOUSE = function(e) {
    var x = e.pageX - $(targ).offset().left;
    var y = e.pageY - $(targ).offset().top;
 
-   return {
-      "x" : x,
-      "y" : y
-   };
+   return { "x" : x, "y" : y };
 };
 
 var __PUBSUB = function(_self) {
@@ -68,9 +62,7 @@ var __PUBSUB = function(_self) {
       for ( var _k = 0; _k < _n; _k++) {
          if (_events[_k] == null)
             continue;
-         var ctrl = {
-            $remove : false
-         };
+         var ctrl = { $remove : false };
          _events[_k](_self, ctrl);
          if (ctrl.$remove) {
             optimizeNeeded = true;

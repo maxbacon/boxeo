@@ -37,7 +37,7 @@ var Boxeo = function(config) {
       return [ a, b ];
    };
 
-   var _shown = false; 
+   var _shown = false;
    this.touches = function(_x, _y, _w, _h) {
       var u = _state.$orientation_u;
       var v = _state.$orientation_v;
@@ -84,10 +84,7 @@ var Boxeo = function(config) {
       var check_a = Math.abs(_a) * 2 <= _state.$width;
       var check_b = Math.abs(_b) * 2 <= _state.$height;
       var inside = check_a && check_b;
-      var result = {
-         inside : inside,
-         item : this
-      };
+      var result = { inside : inside, item : this };
       if (inside) {
          result.x = _a + _state.$width / 2.0;
          result.y = _b + _state.$height / 2.0;
@@ -112,10 +109,7 @@ var BoxeoLayer = function(config) {
    _state.$width = 1;
    _state.$height = 1;
 
-   _viewport = {
-      x : 0,
-      y : 0
-   };
+   _viewport = { x : 0, y : 0 };
    this.updateViewPort = function(x, y) {
       _viewport.x = x;
       _viewport.y = y;
@@ -245,11 +239,7 @@ var BoxeoLayer = function(config) {
       m.y += parseInt(e.dataTransfer.getData("offY"));
       return m;
    };
-   var _trackRubberBandStart = {
-      x : 0,
-      y : 0,
-      dom : null,
-   };
+   var _trackRubberBandStart = { x : 0, y : 0, dom : null };
    this.beginRubberBand = function(rubberBandId, m) {
       var rubberBand = document.getElementById(rubberBandId);
       _trackRubberBandStart.x = m.x;
@@ -272,12 +262,7 @@ var BoxeoLayer = function(config) {
       rubberBand.style.top = (b + _viewport.y) + "px";
       rubberBand.style.width = (c - a) + "px";
       rubberBand.style.height = (d - b) + "px";
-      return {
-         x : a,
-         y : b,
-         w : c - a,
-         h : d - b
-      };
+      return { x : a, y : b, w : c - a, h : d - b };
    };
    this.hideRubberBand = function(m) {
       var rubberBand = _trackRubberBandStart.dom;
@@ -290,11 +275,6 @@ var BoxeoLayer = function(config) {
       var b = Math.min(m.y, _trackRubberBandStart.y);
       var c = Math.max(m.x, _trackRubberBandStart.x);
       var d = Math.max(m.y, _trackRubberBandStart.y);
-      return {
-         x : a,
-         y : b,
-         w : c - a,
-         h : d - b
-      };
+      return { x : a, y : b, w : c - a, h : d - b };
    };
 };
