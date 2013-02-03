@@ -26,9 +26,44 @@ var Boxeo = function(config) {
    _state.$tags = "";
    _state.$url = "";
 
-   this.touches = function(x, y, w, h) {
-      // TODO: real math... fuck, it's late
-      return false;
+   var _project = function(pnts, axis, axis_off) {
+      var a = 1000000.0;
+      var b = -a;
+      for ( var k = 0; k < 8; k += 2) {
+         var p = axis[axis_off] * pnts[k] + axis[axis_off + 1] * pnts[k + 1];
+         a = Math.min(p, a);
+         b = Math.max(p, b);
+      }
+      return [ a, b ];
+   };
+
+   this.touches = function(_x, _y, _w, _h) {
+      var u = _state.$orientation_u;
+      var v = _state.$orientation_v;
+      var pntsA = [];
+      var w = _state.$width / 2.0;
+      var h = _state.$height / 2.0;
+      var duX = w * u;
+      var duY = w * v;
+      var dvX = h * (-v);
+      var dvY = h * u;
+      pntsA[0] = _state.$origin_x - duX - dvX;
+      pntsA[1] = _state.$origin_y - duY - dvY;
+      pntsA[2] = _state.$origin_x + duX - dvX;
+      pntsA[3] = _state.$origin_y + duY - dvY;
+      pntsA[4] = _state.$origin_x + duX + dvX;
+      pntsA[5] = _state.$origin_y + duY + dvY;
+      pntsA[6] = _state.$origin_x - duX + dvX;
+      pntsA[7] = _state.$origin_y - duY + dvY;
+      var pntsB = [ _x, _y, _x + _w, _y, _x + _w, _y + _h, _x, _y + _h ];
+      var axis = [ u, -v, v, u, 0, 1, 1, 0 ];
+      for ( var k = 0; k < 8; k += 2) {
+         var projA = _project(pntsA, axis, k);
+         var projB = _project(pntsB, axis, k);
+         if (projA[1] < projB[0] || projB[1] < projA[0])
+            return false;
+      }
+      return true;
    };
 
    this.contains = function(_x, _y) {
@@ -84,12 +119,23 @@ var BoxeoLayer = function(config) {
       _viewport.x = x;
       _viewport.y = y;
    };
-
+   this.size = function() {
+      return _elements.length;
+   };
    this.add = function(boxeo) {
       _elements[_elements.length] = boxeo;
       boxeo.subscribe(function() {
          _notify();
       });
+      _notify();
+   };
+   this.addAll = function(boxeos) {
+      for ( var k = 0; k < boxeos.length; k++) {
+         _elements[_elements.length] = boxeos[k];
+         boxeos[k].subscribe(function() {
+            _notify();
+         });
+      }
       _notify();
    };
    this.remove = function(boxeo) {
@@ -99,21 +145,32 @@ var BoxeoLayer = function(config) {
             _next[_next.length] = _elements[_k];
          }
       }
-   }
-   this.selectByPoint = function(x, y) {
+   };
+   this.selectByPoint = function(x, y, dontUpdateSelectionState) {
       _state.$cursor_x = x;
       _state.$cursor_y = y;
+      var selUpdate = !dontUpdateSelectionState;
+
       var last = null;
       var _n = _elements.length;
+      var changed = false;
       for ( var _k = 0; _k < _n; _k++) {
-         _elements[_k].selected = false;
          var chk = _elements[_k].contains(x, y);
          if (chk.inside) {
             last = chk;
          }
+         if (selUpdate) {
+            if (_elements[_k].selected != chk.inside) {
+               changed = true;
+               _elements[_k].selected = chk.inside;
+            }
+         }
       }
-      if (last != null) {
-         last.selected = true;
+      if (selUpdate) {
+         if (changed) {
+            if (last != null)
+               last.selected = true;
+         }
       }
       _notify();
       return last;
@@ -125,23 +182,38 @@ var BoxeoLayer = function(config) {
       var h = rect.h;
       var objs = [];
       var _n = _elements.length;
+      var changed = false;
       for ( var _k = 0; _k < _n; _k++) {
          var chk = _elements[_k].touches(x, y, w, h);
          if (chk) {
             objs[objs.length] = _elements[_k];
          }
-         _elements[_k].selected = chk;
+         if (_elements[_k].selected != chk) {
+            changed = true;
+            _elements[_k].selected = chk;
+         }
       }
-      if (objs.length > 0) {
+      if (changed) {
          _notify();
       }
-      return last;
+      if (objs.length > 0) {
+         return objs;
+      }
+      return null;
    }
    this.iterate = function(foo) {
       var _n = _elements.length;
       for ( var _k = 0; _k < _n; _k++) {
          foo(_elements[_k], _k);
       }
+   };
+   this.map = function(foo) {
+      var _n = _elements.length;
+      var res = [];
+      for ( var _k = 0; _k < _n; _k++) {
+         res[_k] = foo(_elements[_k], _k);
+      }
+      return res;
    };
    var _iter = this.iterate;
    this.resize = function(w, h) {
@@ -199,6 +271,12 @@ var BoxeoLayer = function(config) {
       rubberBand.style.top = (b + _viewport.y) + "px";
       rubberBand.style.width = (c - a) + "px";
       rubberBand.style.height = (d - b) + "px";
+      return {
+         x : a,
+         y : b,
+         w : c - a,
+         h : d - b
+      };
    };
    this.hideRubberBand = function(m) {
       var rubberBand = _trackRubberBandStart.dom;
