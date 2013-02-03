@@ -62,7 +62,7 @@ var __PUBSUB = function(_self) {
    _self.subscribe = function(evt) {
       _events[_events.length] = evt;
    };
-   return function() {
+   var _notify = function() {
       var optimizeNeeded = false;
       var _n = _events.length;
       for ( var _k = 0; _k < _n; _k++) {
@@ -77,7 +77,7 @@ var __PUBSUB = function(_self) {
             _events[_k] = null;
          }
       }
-      if (optimizeNeeded) {
+      if (!optimizeNeeded) {
          return;
       }
       var _nextEvents = new Array();
@@ -88,6 +88,8 @@ var __PUBSUB = function(_self) {
       }
       _events = _nextEvents;
    };
+   _self.notify = _notify;
+   return _notify;
 };
 
 var __EVENTS = function(self) {

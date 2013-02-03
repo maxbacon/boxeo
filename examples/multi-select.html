@@ -14,6 +14,7 @@
 <script type="text/javascript">
    var config = BOXEO.getDefaultConfig();
    var layer1 = BOXEO.newLayer(config);
+   var _selection = null;
    function run() {
       BOXEO.setUp('canvas0', layer1, config);
       layer1.event('pre-draw', function(_, renderer) {
@@ -48,7 +49,6 @@
          });
       }
 
-      var _selection = null;
       var beginMultiSelect = function(rubberBandId, start) {
          layer1.beginRubberBand(rubberBandId, start);
          layer1.event('mouse-move', function(_, end) {
@@ -61,6 +61,7 @@
                _selection = BOXEO.newLayer(config);
                _selection.addAll(s);
             }
+            layer1.notify();
             layer1.event('mouse-move', null);
             layer1.event('mouse-up', null);
          });
@@ -136,7 +137,8 @@
             }
             renderer.rect(0, 0, state.$width, state.$height);
             var pad = 6;
-            renderer.point(state.$width / 2 - pad, 0, pad);
+            if (_selection == null)
+            renderer.point(state.$width / 2 - 6, 0, 6);
 
          });
       });

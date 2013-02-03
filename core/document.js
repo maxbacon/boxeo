@@ -201,7 +201,7 @@ var BoxeoLayer = function(config) {
          return objs;
       }
       return null;
-   }
+   };
    this.iterate = function(foo) {
       var _n = _elements.length;
       for ( var _k = 0; _k < _n; _k++) {
@@ -257,7 +257,7 @@ var BoxeoLayer = function(config) {
       rubberBand.style.position = "absolute";
       rubberBand.style.display = "";
       rubberBand.style.left = (m.x + _viewport.x) + "px";
-      rubberBand.style.top = m.y + "px";
+      rubberBand.style.top = (m.y + _viewport.y) + "px";
       rubberBand.style.width = "1px";
       rubberBand.style.height = "1px";
       _trackRubberBandStart.dom = rubberBand;
